@@ -27,10 +27,8 @@ namespace UnrealEngine.Tests {
 			Assert.IsTrue(playerPawn.IsControlled);
 			Assert.IsTrue(playerPawn.IsPlayerControlled);
 
-			leftHand.DisplayDeviceModel = true;
 			leftHand.SetTrackingMotionSource("Left");
 
-			rightHand.DisplayDeviceModel = true;
 			rightHand.SetTrackingMotionSource("Right");
 		}
 
