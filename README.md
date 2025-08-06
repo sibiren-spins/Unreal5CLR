@@ -34,9 +34,9 @@ The plugin is available for Windows, Linux, and macOS (x64).
 Building
 --------
 ### Prerequisites
-- Unreal Engine 4.25.4 or higher
+- Unreal Engine 5.4 or higher
 - A native [compilation toolchain](https://docs.unrealengine.com/en-US/Programming/Development/VisualStudioSetup/index.html#runtheunrealenginepre-requisiteinstaller) with platform-specific dependencies
-- [.NET 6 SDK 6.0.101](https://dotnet.microsoft.com/download/dotnet/6.0)
+- [.NET 9 SDK 9.0.303](https://dotnet.microsoft.com/download/dotnet/9.0)
 
 ### Auto
 
