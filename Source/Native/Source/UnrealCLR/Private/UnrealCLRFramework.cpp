@@ -23,10 +23,13 @@
 
 #include "UnrealCLRFramework.h"
 
+#include "UnrealCLR.h"
+#include "AssetRegistry/IAssetRegistry.h"
+
 DEFINE_LOG_CATEGORY(LogUnrealManaged);
 
 namespace UnrealCLRFramework {
-	#define UNREALCLR_GET_ATTACHMENT_RULE(Rule, Result) {\
+#define UNREALCLR_GET_ATTACHMENT_RULE(Rule, Result) {\
 		switch (Rule) {\
 			case AttachmentTransformRule::KeepRelativeTransform:\
 				Result = FAttachmentTransformRules::KeepRelativeTransform;\
@@ -45,7 +48,7 @@ namespace UnrealCLRFramework {
 		}\
 	}
 
-	#define UNREALCLR_GET_DETACHMENT_RULE(Rule, Result) {\
+#define UNREALCLR_GET_DETACHMENT_RULE(Rule, Result) {\
 		switch (Rule) {\
 			case DetachmentTransformRule::KeepRelativeTransform:\
 				Result = FDetachmentTransformRules::KeepRelativeTransform;\
@@ -58,7 +61,7 @@ namespace UnrealCLRFramework {
 		}\
 	}
 
-	#define UNREALCLR_GET_ACTOR_TYPE(Type, Head, Tail, Result) {\
+#define UNREALCLR_GET_ACTOR_TYPE(Type, Head, Tail, Result) {\
 		switch (Type) {\
 			case ActorType::Base:\
 				Result = Head AActor Tail;\
@@ -122,7 +125,7 @@ namespace UnrealCLRFramework {
 		}\
 	}
 
-	#define UNREALCLR_GET_COMPONENT_TYPE(Type, Head, Tail, Result) {\
+#define UNREALCLR_GET_COMPONENT_TYPE(Type, Head, Tail, Result) {\
 		switch (Type) {\
 			case ComponentType::Actor:\
 				Result = Head UActorComponent Tail;\
@@ -198,7 +201,7 @@ namespace UnrealCLRFramework {
 		}\
 	}
 
-	#define UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, Head, Tail, Result) {\
+#define UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, Head, Tail, Result) {\
 		switch (Type) {\
 			case ComponentType::Scene:\
 				Result = Head USceneComponent Tail;\
@@ -262,7 +265,7 @@ namespace UnrealCLRFramework {
 		}\
 	}
 
-	#define UNREALCLR_GET_PROPERTY_VALUE(Type, Object, Name, Value)\
+#define UNREALCLR_GET_PROPERTY_VALUE(Type, Object, Name, Value)\
 		FName name(UTF8_TO_TCHAR(Name));\
 		for (TFieldIterator<Type> currentProperty(Object->GetClass()); currentProperty; ++currentProperty) {\
 			Type* property = *currentProperty;\
@@ -273,7 +276,7 @@ namespace UnrealCLRFramework {
 		}\
 		return false;
 
-	#define UNREALCLR_SET_PROPERTY_VALUE(Type, Object, Name, Value)\
+#define UNREALCLR_SET_PROPERTY_VALUE(Type, Object, Name, Value)\
 		FName name(UTF8_TO_TCHAR(Name));\
 		for (TFieldIterator<Type> currentProperty(Object->GetClass()); currentProperty; ++currentProperty) {\
 			Type* property = *currentProperty;\
@@ -284,34 +287,34 @@ namespace UnrealCLRFramework {
 		}\
 		return false;
 
-	#define UNREALCLR_GET_BONE_NAME(Hit, Name)\
+#define UNREALCLR_GET_BONE_NAME(Hit, Name)\
 		if (Name && Hit.BoneName.GetStringLength() > 0) {\
 			const char* boneName = TCHAR_TO_UTF8(*Hit.BoneName.ToString());\
 			UnrealCLR::Utility::Strcpy(Name, boneName, UnrealCLR::Utility::Strlen(boneName));\
 		}
 
-	#define UNREALCLR_SET_BONE_NAME(Name)\
+#define UNREALCLR_SET_BONE_NAME(Name)\
 		FName boneName;\
 		if (!Name)\
 			boneName = NAME_None;\
 		else\
 			boneName = FName(UTF8_TO_TCHAR(Name));
 
-	#define UNREALCLR_SET_COLLISION_QUERY_PARAMS(IgnoredActor, IgnoredComponent)\
+#define UNREALCLR_SET_COLLISION_QUERY_PARAMS(IgnoredActor, IgnoredComponent)\
 		FCollisionQueryParams queryParams;\
 		if (IgnoredActor)\
 			queryParams.AddIgnoredActor(IgnoredActor);\
 		if (IgnoredComponent)\
 			queryParams.AddIgnoredComponent(IgnoredComponent);
 
-	#define UNREALCLR_SET_COMPONENT_INSTANCE(Component, Name)\
+#define UNREALCLR_SET_COMPONENT_INSTANCE(Component, Name)\
 		Actor->AddInstanceComponent(Component);\
 		component->OnComponentCreated();\
 		component->RegisterComponent();\
 		if (Name)\
 			component->Rename(*FString(UTF8_TO_TCHAR(Name)));
 
-	#define UNREALCLR_SET_ACTOR_EVENT(Type, Condition, Method) {\
+#define UNREALCLR_SET_ACTOR_EVENT(Type, Condition, Method) {\
 		switch (Type) {\
 			case ActorEventType::OnActorBeginOverlap:\
 				if (Condition Actor->OnActorBeginOverlap.IsAlreadyBound(UnrealCLR::Engine::Manager, &UUnrealCLRManager::ActorBeginOverlap))\
@@ -346,7 +349,7 @@ namespace UnrealCLRFramework {
 		}\
 	}
 
-	#define UNREALCLR_SET_COMPONENT_EVENT(Type, Condition, Method) {\
+#define UNREALCLR_SET_COMPONENT_EVENT(Type, Condition, Method) {\
 		switch (Type) {\
 			case ComponentEventType::OnComponentBeginOverlap:\
 				if (Condition PrimitiveComponent->OnComponentBeginOverlap.IsAlreadyBound(UnrealCLR::Engine::Manager, &UUnrealCLRManager::ComponentBeginOverlap))\
@@ -381,35 +384,41 @@ namespace UnrealCLRFramework {
 		}\
 	}
 
-	#define UNREALCLR_COLOR_TO_INTEGER(Color) (Color.A << 24) + (Color.R << 16) + (Color.G << 8) + Color.B
+#define UNREALCLR_COLOR_TO_INTEGER(Color) (Color.A << 24) + (Color.R << 16) + (Color.G << 8) + Color.B
 
-	#if ENGINE_MAJOR_VERSION == 4
-		#if ENGINE_MINOR_VERSION <= 26
-			#define UNREALCLR_BLEND_TYPE 5
-		#elif ENGINE_MINOR_VERSION >= 27
-			#define UNREALCLR_BLEND_TYPE 6
-		#endif
+#if ENGINE_MAJOR_VERSION == 4
+#define UNREALCLR_CONTROLLER_HAND 17
+#define UNREALCLR_BOUNDS_SIZE 28
 
-		#if ENGINE_MINOR_VERSION <= 25
-			#define UNREALCLR_PIXEL_FORMAT 71
-		#elif ENGINE_MINOR_VERSION >= 26
-			#define UNREALCLR_PIXEL_FORMAT 72
-		#endif
-	#elif ENGINE_MAJOR_VERSION == 5
-		#define UNREALCLR_PIXEL_FORMAT 72
-		#define UNREALCLR_BLEND_TYPE 6
-	#endif
+#if ENGINE_MINOR_VERSION <= 26
+#define UNREALCLR_BLEND_TYPE 5
+#elif ENGINE_MINOR_VERSION >= 27
+#define UNREALCLR_BLEND_TYPE 6
+#endif
+
+#if ENGINE_MINOR_VERSION <= 25
+#define UNREALCLR_PIXEL_FORMAT 71
+#elif ENGINE_MINOR_VERSION >= 26
+#define UNREALCLR_PIXEL_FORMAT 72
+#endif
+#elif ENGINE_MAJOR_VERSION == 5
+#define UNREALCLR_BLEND_TYPE 6
+#define UNREALCLR_PIXEL_FORMAT 94
+#define UNREALCLR_CONTROLLER_HAND 18
+
+#define UNREALCLR_BOUNDS_SIZE 56
+#endif
 
 	static_assert(AudioFadeCurve::Count == AudioFadeCurve(4), "Invalid elements count of the [AudioFadeCurve] enumeration");
 	static_assert(BlendType::VTBlend_MAX == BlendType(UNREALCLR_BLEND_TYPE), "Invalid elements count of the [BlendType] enumeration");
 	static_assert(CollisionChannel::ECC_MAX == CollisionChannel(33), "Invalid elements count of the [CollisionChannel] enumeration");
 	static_assert(CollisionResponse::ECR_MAX == CollisionResponse(3), "Invalid elements count of the [CollisionResponse] enumeration");
-	static_assert(ControllerHand::ControllerHand_Count == ControllerHand(17), "Invalid elements count of the [ControllerHand] enumeration");
+	static_assert(ControllerHand::ControllerHand_Count == ControllerHand(UNREALCLR_CONTROLLER_HAND), "Invalid elements count of the [ControllerHand] enumeration");
 	static_assert(InputEvent::IE_MAX == InputEvent(5), "Invalid elements count of the [InputEvent] enumeration");
 	static_assert(NetMode::NM_MAX == NetMode(4), "Invalid elements count of the [NetMode] enumeration");
 	static_assert(PixelFormat::PF_MAX == PixelFormat(UNREALCLR_PIXEL_FORMAT), "Invalid elements count of the [PixelFormat] enumeration");
 
-	static_assert(sizeof(Bounds) == 28, "Invalid size of the [Bounds] structure");
+	static_assert(sizeof(Bounds) == UNREALCLR_BOUNDS_SIZE, "Invalid size of the [Bounds] structure");
 	static_assert(sizeof(CollisionShape) == 16, "Invalid size of the [CollisionShape] structure");
 
 	namespace Assert {
@@ -440,15 +449,18 @@ namespace UnrealCLRFramework {
 
 	namespace Debug {
 		void Log(LogLevel Level, const char* Message) {
-			#define UNREALCLR_FRAMEWORK_LOG(Verbosity) UE_LOG(LogUnrealManaged, Verbosity, TEXT("%s: %s"), ANSI_TO_TCHAR(__FUNCTION__), *FString(UTF8_TO_TCHAR(Message)));
+#define UNREALCLR_FRAMEWORK_LOG(Verbosity) UE_LOG(LogUnrealManaged, Verbosity, TEXT("%s: %s"), ANSI_TO_TCHAR(__FUNCTION__), *FString(UTF8_TO_TCHAR(Message)));
 
 			if (Level == LogLevel::Display) {
 				UNREALCLR_FRAMEWORK_LOG(Display);
-			} else if (Level == LogLevel::Warning) {
+			}
+			else if (Level == LogLevel::Warning) {
 				UNREALCLR_FRAMEWORK_LOG(Warning);
-			} else if (Level == LogLevel::Error) {
+			}
+			else if (Level == LogLevel::Error) {
 				UNREALCLR_FRAMEWORK_LOG(Error);
-			} else if (Level == LogLevel::Fatal) {
+			}
+			else if (Level == LogLevel::Fatal) {
 				UNREALCLR_FRAMEWORK_LOG(Fatal);
 			}
 		}
@@ -499,79 +511,80 @@ namespace UnrealCLRFramework {
 	}
 
 	namespace Object {
-		bool IsPendingKill(UObject* Object) {
-			return Object->IsPendingKill();
+		bool IsValidLowLevel(UObject* Object)
+		{
+			return Object->IsValidLowLevel();
 		}
 
 		bool IsValid(UObject* Object) {
-			return Object->IsValidLowLevel();
+			return IsValidChecked(Object);
 		}
 
 		UObject* Load(ObjectType Type, const char* Name) {
 			UObject* object = nullptr;
 
 			switch (Type) {
-				case ObjectType::Blueprint: {
-					#if WITH_EDITOR
-						object = StaticLoadObject(UBlueprint::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					#else
-						FString name(UTF8_TO_TCHAR(Name));
-						int32 index = INDEX_NONE;
+			case ObjectType::Blueprint: {
+#if WITH_EDITOR
+				object = StaticLoadObject(UBlueprint::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+#else
+				FString name(UTF8_TO_TCHAR(Name));
+				int32 index = INDEX_NONE;
 
-						if (name.FindLastChar(TCHAR('/'), index)) {
-							name.AppendChar(TCHAR('.'));
-							name.Append(name.Mid(index + 1, name.Len() - index - 2));
-						}
-
-						name.Append(TEXT("_C"));
-
-						object = StaticLoadObject(UClass::StaticClass(), nullptr, *name);
-					#endif
-					break;
+				if (name.FindLastChar(TCHAR('/'), index)) {
+					name.AppendChar(TCHAR('.'));
+					name.Append(name.Mid(index + 1, name.Len() - index - 2));
 				}
 
-				case ObjectType::SoundWave: {
-					object = StaticLoadObject(USoundWave::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+				name.Append(TEXT("_C"));
 
-				case ObjectType::AnimationSequence: {
-					object = StaticLoadObject(UAnimSequence::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+				object = StaticLoadObject(UClass::StaticClass(), nullptr, *name);
+#endif
+				break;
+			}
 
-				case ObjectType::AnimationMontage: {
-					object = StaticLoadObject(UAnimMontage::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+			case ObjectType::SoundWave: {
+				object = StaticLoadObject(USoundWave::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
 
-				case ObjectType::StaticMesh: {
-					object = StaticLoadObject(UStaticMesh::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+			case ObjectType::AnimationSequence: {
+				object = StaticLoadObject(UAnimSequence::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
 
-				case ObjectType::SkeletalMesh: {
-					object = StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+			case ObjectType::AnimationMontage: {
+				object = StaticLoadObject(UAnimMontage::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
 
-				case ObjectType::Material: {
-					object = StaticLoadObject(UMaterial::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+			case ObjectType::StaticMesh: {
+				object = StaticLoadObject(UStaticMesh::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
 
-				case ObjectType::Font: {
-					object = StaticLoadObject(UFont::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+			case ObjectType::SkeletalMesh: {
+				object = StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
 
-				case ObjectType::Texture2D: {
-					object = StaticLoadObject(UTexture2D::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
-					break;
-				}
+			case ObjectType::Material: {
+				object = StaticLoadObject(UMaterial::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
 
-				default:
-					break;
+			case ObjectType::Font: {
+				object = StaticLoadObject(UFont::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
+
+			case ObjectType::Texture2D: {
+				object = StaticLoadObject(UTexture2D::StaticClass(), nullptr, *FString(UTF8_TO_TCHAR(Name)));
+				break;
+			}
+
+			default:
+				break;
 			}
 
 			return object;
@@ -808,7 +821,7 @@ namespace UnrealCLRFramework {
 		}
 
 		void GetPath(FAssetData* Asset, char* Path) {
-			FString objectPath = Asset->ObjectPath.ToString();
+			FString objectPath = Asset->GetObjectPathString();
 
 			int32 index = INDEX_NONE;
 
@@ -859,27 +872,27 @@ namespace UnrealCLRFramework {
 
 	namespace Blueprint {
 		bool IsValidActorClass(UBlueprint* Blueprint, ActorType Type) {
-			#if WITH_EDITOR
-				TSubclassOf<AActor> type;
+#if WITH_EDITOR
+			TSubclassOf<AActor> type;
 
-				UNREALCLR_GET_ACTOR_TYPE(Type, UNREALCLR_NONE, ::StaticClass(), type);
+			UNREALCLR_GET_ACTOR_TYPE(Type, UNREALCLR_NONE, ::StaticClass(), type);
 
-				return Blueprint->ParentClass == type;
-			#else
-				return true;
-			#endif
+			return Blueprint->ParentClass == type;
+#else
+			return true;
+#endif
 		}
 
 		bool IsValidComponentClass(UBlueprint* Blueprint, ComponentType Type) {
-			#if WITH_EDITOR
-				TSubclassOf<USceneComponent> type;
+#if WITH_EDITOR
+			TSubclassOf<USceneComponent> type;
 
-				UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, UNREALCLR_NONE, ::StaticClass(), type);
+			UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, UNREALCLR_NONE, ::StaticClass(), type);
 
-				return Blueprint->ParentClass == type;
-			#else
-				return true;
-			#endif
+			return Blueprint->ParentClass == type;
+#else
+			return true;
+#endif
 		}
 	}
 
@@ -893,11 +906,11 @@ namespace UnrealCLRFramework {
 		}
 
 		bool IsPackagedForShipping() {
-			#if UE_BUILD_SHIPPING
-				return true;
-			#else
-				return false;
-			#endif
+#if UE_BUILD_SHIPPING
+			return true;
+#else
+			return false;
+#endif
 		}
 
 		void GetProjectDirectory(char* Directory) {
@@ -970,7 +983,7 @@ namespace UnrealCLRFramework {
 
 					UnrealCLR::ManagedCommand(UnrealCLR::Command((void*)Callback, value));
 				}
-			};
+				};
 
 			IConsoleManager::Get().RegisterConsoleCommand(UTF8_TO_TCHAR(Name), UTF8_TO_TCHAR(Help), FConsoleCommandWithArgsDelegate::CreateLambda(callback), !ReadOnly ? ECVF_Default : ECVF_ReadOnly);
 		}
@@ -982,7 +995,11 @@ namespace UnrealCLRFramework {
 
 	namespace Engine {
 		bool IsSplitScreen() {
+#if ENGINE_MAJOR_VERSION >= 5
+			return GEngine->HasMultipleLocalPlayers(UnrealCLR::Engine::World);
+#else
 			return GEngine->IsSplitScreen(UnrealCLR::Engine::World);
+#endif
 		}
 
 		bool IsEditor() {
@@ -1068,10 +1085,6 @@ namespace UnrealCLRFramework {
 			return UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled();
 		}
 
-		bool GetLowPersistenceMode() {
-			return UHeadMountedDisplayFunctionLibrary::IsInLowPersistenceMode();
-		}
-
 		void GetDeviceName(char* Name) {
 			FName deviceName = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName();
 
@@ -1082,10 +1095,6 @@ namespace UnrealCLRFramework {
 
 		void SetEnable(bool Value) {
 			UHeadMountedDisplayFunctionLibrary::EnableHMD(Value);
-		}
-
-		void SetLowPersistenceMode(bool Value) {
-			UHeadMountedDisplayFunctionLibrary::EnableLowPersistenceMode(Value);
 		}
 	}
 
@@ -1338,7 +1347,7 @@ namespace UnrealCLRFramework {
 
 			queryParams.bTraceComplex = TraceComplex;
 
-			return UnrealCLR::Engine::World->SweepTestByProfile( *Start, *End, *Rotation, FName(UTF8_TO_TCHAR(ProfileName)), *Shape, queryParams);
+			return UnrealCLR::Engine::World->SweepTestByProfile(*Start, *End, *Rotation, FName(UTF8_TO_TCHAR(ProfileName)), *Shape, queryParams);
 		}
 
 		bool SweepSingleByChannel(const Vector3* Start, const Vector3* End, const Quaternion* Rotation, CollisionChannel Channel, const CollisionShape* Shape, Hit* Hit, char* BoneName, bool TraceComplex, AActor* IgnoredActor, UPrimitiveComponent* IgnoredComponent) {
@@ -1454,7 +1463,7 @@ namespace UnrealCLRFramework {
 		void SetOnChangedCallback(IConsoleVariable* ConsoleVariable, ConsoleVariableDelegate Callback) {
 			auto callback = [Callback](IConsoleVariable* ConsoleVariable) {
 				UnrealCLR::ManagedCommand(UnrealCLR::Command((void*)Callback));
-			};
+				};
 
 			ConsoleVariable->SetOnChangedCallback(FConsoleVariableDelegate::CreateLambda(callback));
 		}
@@ -1467,7 +1476,7 @@ namespace UnrealCLRFramework {
 	}
 
 	namespace Actor {
-		bool IsPendingKill(AActor* Actor) {
+		bool IsPendingKillPending(AActor* Actor) {
 			return Actor->IsPendingKillPending();
 		}
 
@@ -1544,12 +1553,13 @@ namespace UnrealCLRFramework {
 
 			if (!Blueprint) {
 				UNREALCLR_GET_ACTOR_TYPE(Type, UnrealCLR::Engine::World->SpawnActor UNREALCLR_BRACKET_LEFT, ::StaticClass() UNREALCLR_BRACKET_RIGHT, actor);
-			} else {
-				#if !WITH_EDITOR
-					UNREALCLR_GET_ACTOR_TYPE(Type, UnrealCLR::Engine::World->SpawnActor<, >(Cast<UClass>(Blueprint)), actor);
-				#else
-					UNREALCLR_GET_ACTOR_TYPE(Type, UnrealCLR::Engine::World->SpawnActor<, >(Cast<UBlueprint>(Blueprint)->GeneratedClass), actor);
-				#endif
+			}
+			else {
+#if !WITH_EDITOR
+				UNREALCLR_GET_ACTOR_TYPE(Type, UnrealCLR::Engine::World->SpawnActor<, >(Cast<UClass>(Blueprint)), actor);
+#else
+				UNREALCLR_GET_ACTOR_TYPE(Type, UnrealCLR::Engine::World->SpawnActor<, >(Cast<UBlueprint>(Blueprint)->GeneratedClass), actor);
+#endif
 			}
 
 			if (actor && Name) {
@@ -1557,9 +1567,9 @@ namespace UnrealCLRFramework {
 
 				actor->Rename(*name);
 
-				#if WITH_EDITOR
-					actor->SetActorLabel(*name);
-				#endif
+#if WITH_EDITOR
+				actor->SetActorLabel(*name);
+#endif
 			}
 
 			return actor;
@@ -1574,9 +1584,9 @@ namespace UnrealCLRFramework {
 
 			Actor->Rename(*name);
 
-			#if WITH_EDITOR
-				Actor->SetActorLabel(*name);
-			#endif
+#if WITH_EDITOR
+			Actor->SetActorLabel(*name);
+#endif
 		}
 
 		void Hide(AActor* Actor, bool Value) {
@@ -2328,7 +2338,7 @@ namespace UnrealCLRFramework {
 			actionBinding.bExecuteWhenPaused = ExecutedWhenPaused;
 			actionBinding.ActionDelegate.GetDelegateForManualSet().BindLambda([Callback]() {
 				UnrealCLR::ManagedCommand(UnrealCLR::Command((void*)Callback));
-			});
+				});
 
 			InputComponent->AddActionBinding(actionBinding);
 		}
@@ -2339,7 +2349,7 @@ namespace UnrealCLRFramework {
 			axisBinding.bExecuteWhenPaused = ExecutedWhenPaused;
 			axisBinding.AxisDelegate.GetDelegateForManualSet().BindLambda([Callback](float AxisValue) {
 				UnrealCLR::ManagedCommand(UnrealCLR::Command((void*)Callback, AxisValue));
-			});
+				});
 
 			InputComponent->AxisBindings.Emplace(axisBinding);
 		}
@@ -2426,9 +2436,9 @@ namespace UnrealCLRFramework {
 			MovementComponent->SetPlaneConstraintNormal(*Value);
 		}
 
-		 void SetPlaneConstraintOrigin(UMovementComponent* MovementComponent, const Vector3* Value) {
+		void SetPlaneConstraintOrigin(UMovementComponent* MovementComponent, const Vector3* Value) {
 			MovementComponent->SetPlaneConstraintOrigin(*Value);
-		 }
+		}
 
 		void SetPlaneConstraintFromVectors(UMovementComponent* MovementComponent, const Vector3* Forward, const Vector3* Up) {
 			MovementComponent->SetPlaneConstraintFromVectors(*Forward, *Up);
@@ -2547,12 +2557,13 @@ namespace UnrealCLRFramework {
 
 			if (!Blueprint) {
 				UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, NewObject<, >(Actor), component);
-			} else {
-				#if !WITH_EDITOR
-					UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, NewObject<, >(Actor, Cast<UClass>(Blueprint)), component);
-				#else
-					UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, NewObject<, >(Actor, Cast<UBlueprint>(Blueprint)->GeneratedClass), component);
-				#endif
+			}
+			else {
+#if !WITH_EDITOR
+				UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, NewObject<, >(Actor, Cast<UClass>(Blueprint)), component);
+#else
+				UNREALCLR_GET_MOVABLE_COMPONENT_TYPE(Type, NewObject<, >(Actor, Cast<UBlueprint>(Blueprint)->GeneratedClass), component);
+#endif
 			}
 
 			if (component) {
@@ -3522,20 +3533,12 @@ namespace UnrealCLRFramework {
 			return MotionControllerComponent->IsTracked();
 		}
 
-		bool GetDisplayDeviceModel(UMotionControllerComponent* MotionControllerComponent) {
-			return MotionControllerComponent->bDisplayDeviceModel;
-		}
-
 		bool GetDisableLowLatencyUpdate(UMotionControllerComponent* MotionControllerComponent) {
 			return MotionControllerComponent->bDisableLowLatencyUpdate;
 		}
 
 		ControllerHand GetTrackingSource(UMotionControllerComponent* MotionControllerComponent) {
 			return MotionControllerComponent->GetTrackingSource();
-		}
-
-		void SetDisplayDeviceModel(UMotionControllerComponent* MotionControllerComponent, bool Value) {
-			MotionControllerComponent->bDisplayDeviceModel = true;
 		}
 
 		void SetDisableLowLatencyUpdate(UMotionControllerComponent* MotionControllerComponent, bool Value) {
@@ -3552,14 +3555,6 @@ namespace UnrealCLRFramework {
 
 		void SetAssociatedPlayerIndex(UMotionControllerComponent* MotionControllerComponent, int32 PlayerIndex) {
 			MotionControllerComponent->SetAssociatedPlayerIndex(PlayerIndex);
-		}
-
-		void SetCustomDisplayMesh(UMotionControllerComponent* MotionControllerComponent, UStaticMesh* StaticMesh) {
-			MotionControllerComponent->SetCustomDisplayMesh(StaticMesh);
-		}
-
-		void SetDisplayModelSource(UMotionControllerComponent* MotionControllerComponent, const char* Source) {
-			MotionControllerComponent->SetDisplayModelSource(FName(UTF8_TO_TCHAR(Source)));
 		}
 	}
 
@@ -3671,7 +3666,7 @@ namespace UnrealCLRFramework {
 		}
 
 		void SetSkeletalMesh(USkinnedMeshComponent* SkinnedMeshComponent, USkeletalMesh* SkeletalMesh, bool ReinitializePose) {
-			SkinnedMeshComponent->SetSkeletalMesh(SkeletalMesh, ReinitializePose);
+			SkinnedMeshComponent->SetSkinnedAssetAndUpdate(SkeletalMesh, ReinitializePose);
 		}
 	}
 
@@ -3693,11 +3688,11 @@ namespace UnrealCLRFramework {
 		}
 
 		void SetAnimationBlueprint(USkeletalMeshComponent* SkeletalMeshComponent, UObject* Blueprint) {
-			#if !WITH_EDITOR
-				SkeletalMeshComponent->SetAnimInstanceClass(Cast<UClass>(Blueprint));
-			#else
-				SkeletalMeshComponent->SetAnimInstanceClass(Cast<UBlueprint>(Blueprint)->GeneratedClass);
-			#endif
+#if !WITH_EDITOR
+			SkeletalMeshComponent->SetAnimInstanceClass(Cast<UClass>(Blueprint));
+#else
+			SkeletalMeshComponent->SetAnimInstanceClass(Cast<UBlueprint>(Blueprint)->GeneratedClass);
+#endif
 		}
 
 		void Play(USkeletalMeshComponent* SkeletalMeshComponent, bool Loop) {

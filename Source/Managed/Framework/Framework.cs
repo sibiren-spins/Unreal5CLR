@@ -635,6 +635,8 @@ namespace UnrealEngine.Framework {
 		/// <summary/>
 		Gun,
 		/// <summary/>
+		HMD,
+		/// <summary/>
 		Special1,
 		/// <summary/>
 		Special2,
@@ -903,13 +905,57 @@ namespace UnrealEngine.Framework {
 		/// <summary/>
 		ETC2RG11EAC = 70,
 		/// <summary/>
-		R8 = 71
-	}
+		R8 = 71,
+        /// <summary/>
+        B5G5R5A1UNorm = 72,
+        /// <summary/>
+        ASTC4x4HDR = 73,
+        /// <summary/>
+        ASTC6x6HDR = 74,
+        /// <summary/>
+        ASTC8x8HDR = 75,
+        /// <summary/>
+        ASTC10x10HDR = 76,
+        /// <summary/>
+        ASTC12x12HDR = 77,
+        /// <summary/>
+        G16R16SNorm = 78,
+        /// <summary/>
+        R8G8UInt = 79,
+        /// <summary/>
+        R32G32B32UInt = 80,
+        /// <summary/>
+        R32G32B32SInt = 81,
+        /// <summary/>
+        R32G32B32F = 82,
+        /// <summary/>
+        R8SInt = 83,
+        /// <summary/>
+        R64UInt = 84,
+		/// <summary/>
+		R9G9B9EXP5 = 85,
+        /// <summary/>
+		P010,
+        /// <summary/>
+		ASTC4x4NormRG,
+        /// <summary/>
+		ASTC6x6NormRG,
+        /// <summary/>
+		ASTC8x8NormRG,
+        /// <summary/>
+		ASTC10x10NormRG,
+        /// <summary/>
+		ASTC12x12NormRG,
+        /// <summary/>
+		R16G16SInt,
+		/// <summary/>
+		Max
+    }
 
-	/// <summary>
-	/// A representation of the engine's object reference
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// A representation of the engine's object reference
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
 	public unsafe struct ObjectReference : IEquatable<ObjectReference> {
 		private IntPtr pointer;
 
@@ -942,7 +988,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Returns the unique ID of the object, reused by the engine, only unique while the object is alive
@@ -1056,7 +1102,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the actor is spawned
 		/// </summary>
-		public bool IsSpawned => pointer != IntPtr.Zero && !Object.isPendingKill(pointer);
+		public bool IsSpawned => pointer != IntPtr.Zero && Object.isValid(pointer);
 
 		/// <summary>
 		/// Returns the unique ID of the object, reused by the engine, only unique while the object is alive
@@ -1153,7 +1199,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Returns the unique ID of the object, reused by the engine, only unique while the object is alive
@@ -1712,7 +1758,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns the radius of the bounding sphere
 		/// </summary>
-		public float SphereRadius => sphereRadius;
+		public double SphereRadius => sphereRadius;
 
 		/// <summary>
 		/// Tests for equality between two objects
@@ -3930,14 +3976,6 @@ namespace UnrealEngine.Framework {
 		}
 
 		/// <summary>
-		/// Gets or sets whether the head-mounted display is in low or full persistence mode
-		/// </summary>
-		public static bool LowPersistenceMode {
-			get => getLowPersistenceMode();
-			set => setLowPersistenceMode(value);
-		}
-
-		/// <summary>
 		/// Returns the name of the device
 		/// </summary>
 		public static string DeviceName {
@@ -4744,7 +4782,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the actor is spawned
 		/// </summary>
-		public bool IsSpawned => pointer != IntPtr.Zero && !isPendingKill(pointer);
+		public bool IsSpawned => pointer != IntPtr.Zero && !isPendingKillPending(pointer);
 
 		/// <summary>
 		/// Returns <c>true</c> if the root component is <see cref="ComponentMobility.Movable"/>
@@ -6479,7 +6517,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
@@ -6559,7 +6597,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
@@ -6665,7 +6703,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Retrieves the value of the bool property
@@ -7184,7 +7222,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
@@ -7238,7 +7276,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
@@ -7370,7 +7408,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
@@ -7428,7 +7466,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
@@ -7489,7 +7527,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
@@ -7686,7 +7724,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && !Object.isPendingKill(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
 
 		/// <summary>
 		/// Returns the unique ID of the component, reused by the engine, only unique while the component is alive
@@ -10254,14 +10292,6 @@ namespace UnrealEngine.Framework {
 		public bool IsTracked => isTracked(Pointer);
 
 		/// <summary>
-		/// Gets or sets whether to render a model associated with the set hand
-		/// </summary>
-		public bool DisplayDeviceModel {
-			get => getDisplayDeviceModel(Pointer);
-			set => setDisplayDeviceModel(Pointer, value);
-		}
-
-		/// <summary>
 		/// Gets or sets whether render transforms within the motion controller hierarchy will be updated a second time immediately before rendering
 		/// </summary>
 		public bool DisableLowLatencyUpdate {
@@ -10286,21 +10316,6 @@ namespace UnrealEngine.Framework {
 		/// Sets the player index which the motion controller should automatically follow
 		/// </summary>
 		public void SetAssociatedPlayerIndex(int playerIndex) => setAssociatedPlayerIndex(Pointer, playerIndex);
-
-		/// <summary>
-		/// Sets the custom display mesh that attached to the motion controller
-		/// </summary>
-		public void SetCustomDisplayMesh(StaticMesh staticMesh) {
-			if (staticMesh == null)
-				throw new ArgumentNullException(nameof(staticMesh));
-
-			setCustomDisplayMesh(Pointer, staticMesh.Pointer);
-		}
-
-		/// <summary>
-		/// Sets the display model source
-		/// </summary>
-		public void SetDisplayModelSource(string source) => setDisplayModelSource(Pointer, source.StringToBytes());
 	}
 
 	/// <summary>
@@ -11419,7 +11434,7 @@ namespace UnrealEngine.Framework {
 		/// <summary>
 		/// Returns <c>true</c> if the object is created
 		/// </summary>
-		public bool IsCreated => pointer != IntPtr.Zero && Object.isValid(pointer);
+		public bool IsCreated => pointer != IntPtr.Zero && Object.isValidLowLevel(pointer);
 
 		/// <summary>
 		/// Indicates equality of objects
