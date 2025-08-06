@@ -28,23 +28,23 @@
 DEFINE_LOG_CATEGORY(LogUnrealCLR);
 
 void UnrealCLR::Module::StartupModule() {
-	#define HOSTFXR_VERSION "6.0.1"
-	#define HOSTFXR_WINDOWS "hostfxr.dll"
-	#define HOSTFXR_MAC "libhostfxr.dylib"
-	#define HOSTFXR_LINUX "libhostfxr.so"
+#define HOSTFXR_VERSION "9.0.7"
+#define HOSTFXR_WINDOWS "hostfxr.dll"
+#define HOSTFXR_MAC "libhostfxr.dylib"
+#define HOSTFXR_LINUX "libhostfxr.so"
 
-	#ifdef UNREALCLR_WINDOWS
-		#define HOSTFXR_PATH "Plugins/UnrealCLR/Runtime/Win64/host/fxr/" HOSTFXR_VERSION "/" HOSTFXR_WINDOWS
-		#define UNREALCLR_PLATFORM_STRING(string) string
-	#elif defined(UNREALCLR_MAC)
-		#define HOSTFXR_PATH "Plugins/UnrealCLR/Runtime/Mac/host/fxr/" HOSTFXR_VERSION "/" HOSTFXR_MAC
-		#define UNREALCLR_PLATFORM_STRING(string) TCHAR_TO_ANSI(string)
-	#elif defined(UNREALCLR_UNIX)
-		#define HOSTFXR_PATH "Plugins/UnrealCLR/Runtime/Linux/host/fxr/" HOSTFXR_VERSION "/" HOSTFXR_LINUX
-		#define UNREALCLR_PLATFORM_STRING(string) TCHAR_TO_ANSI(string)
-	#else
-		#error "Unknown platform"
-	#endif
+#ifdef UNREALCLR_WINDOWS
+#define HOSTFXR_PATH "Plugins/UnrealCLR/Runtime/Win64/host/fxr/" HOSTFXR_VERSION "/" HOSTFXR_WINDOWS
+#define UNREALCLR_PLATFORM_STRING(string) string
+#elif defined(UNREALCLR_MAC)
+#define HOSTFXR_PATH "Plugins/UnrealCLR/Runtime/Mac/host/fxr/" HOSTFXR_VERSION "/" HOSTFXR_MAC
+#define UNREALCLR_PLATFORM_STRING(string) TCHAR_TO_ANSI(string)
+#elif defined(UNREALCLR_UNIX)
+#define HOSTFXR_PATH "Plugins/UnrealCLR/Runtime/Linux/host/fxr/" HOSTFXR_VERSION "/" HOSTFXR_LINUX
+#define UNREALCLR_PLATFORM_STRING(string) TCHAR_TO_ANSI(string)
+#else
+#error "Unknown platform"
+#endif
 
 	UnrealCLR::Status = UnrealCLR::StatusType::Stopped;
 	UnrealCLR::ProjectPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
@@ -129,22 +129,23 @@ void UnrealCLR::Module::StartupModule() {
 
 		if (HostfxrLoadAssemblyAndGetFunctionPointer && HostfxrLoadAssemblyAndGetFunctionPointer(UNREALCLR_PLATFORM_STRING(*runtimeAssemblyPath), UNREALCLR_PLATFORM_STRING(*runtimeTypeName), UNREALCLR_PLATFORM_STRING(*runtimeMethodName), UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&UnrealCLR::ManagedCommand) == 0) {
 			UE_LOG(LogUnrealCLR, Display, TEXT("%s: Host runtime assembly loaded successfuly!"), ANSI_TO_TCHAR(__FUNCTION__));
-		} else {
+		}
+		else {
 			UE_LOG(LogUnrealCLR, Error, TEXT("%s: Host runtime assembly loading failed!"), ANSI_TO_TCHAR(__FUNCTION__));
 
 			return;
 		}
 
-		#if WITH_EDITOR
-			IPlatformFile& platformFile = FPlatformFileManager::Get().GetPlatformFile();
+#if WITH_EDITOR
+		IPlatformFile& platformFile = FPlatformFileManager::Get().GetPlatformFile();
 
-			if (!platformFile.DirectoryExists(*UnrealCLR::UserAssembliesPath)) {
-				platformFile.CreateDirectory(*UnrealCLR::UserAssembliesPath);
+		if (!platformFile.DirectoryExists(*UnrealCLR::UserAssembliesPath)) {
+			platformFile.CreateDirectory(*UnrealCLR::UserAssembliesPath);
 
-				if (!platformFile.DirectoryExists(*UnrealCLR::UserAssembliesPath))
-					UE_LOG(LogUnrealCLR, Warning, TEXT("%s: Unable to create a folder for managed assemblies at %s."), ANSI_TO_TCHAR(__FUNCTION__), *UnrealCLR::UserAssembliesPath);
-			}
-		#endif
+			if (!platformFile.DirectoryExists(*UnrealCLR::UserAssembliesPath))
+				UE_LOG(LogUnrealCLR, Warning, TEXT("%s: Unable to create a folder for managed assemblies at %s."), ANSI_TO_TCHAR(__FUNCTION__), *UnrealCLR::UserAssembliesPath);
+		}
+#endif
 
 		if (UnrealCLR::ManagedCommand) {
 			// Framework pointers
@@ -196,7 +197,7 @@ void UnrealCLR::Module::StartupModule() {
 				int32 head = 0;
 				Shared::Functions[position++] = Shared::ObjectFunctions;
 
-				Shared::ObjectFunctions[head++] = (void*)&UnrealCLRFramework::Object::IsPendingKill;
+				Shared::ObjectFunctions[head++] = (void*)&UnrealCLRFramework::Object::IsValidLowLevel;
 				Shared::ObjectFunctions[head++] = (void*)&UnrealCLRFramework::Object::IsValid;
 				Shared::ObjectFunctions[head++] = (void*)&UnrealCLRFramework::Object::Load;
 				Shared::ObjectFunctions[head++] = (void*)&UnrealCLRFramework::Object::Rename;
@@ -300,10 +301,8 @@ void UnrealCLR::Module::StartupModule() {
 
 				Shared::HeadMountedDisplayFunctions[head++] = (void*)&UnrealCLRFramework::HeadMountedDisplay::IsConnected;
 				Shared::HeadMountedDisplayFunctions[head++] = (void*)&UnrealCLRFramework::HeadMountedDisplay::GetEnabled;
-				Shared::HeadMountedDisplayFunctions[head++] = (void*)&UnrealCLRFramework::HeadMountedDisplay::GetLowPersistenceMode;
 				Shared::HeadMountedDisplayFunctions[head++] = (void*)&UnrealCLRFramework::HeadMountedDisplay::GetDeviceName;
 				Shared::HeadMountedDisplayFunctions[head++] = (void*)&UnrealCLRFramework::HeadMountedDisplay::SetEnable;
-				Shared::HeadMountedDisplayFunctions[head++] = (void*)&UnrealCLRFramework::HeadMountedDisplay::SetLowPersistenceMode;
 
 				checksum += head;
 			}
@@ -425,7 +424,7 @@ void UnrealCLR::Module::StartupModule() {
 				int32 head = 0;
 				Shared::Functions[position++] = Shared::ActorFunctions;
 
-				Shared::ActorFunctions[head++] = (void*)&UnrealCLRFramework::Actor::IsPendingKill;
+				Shared::ActorFunctions[head++] = (void*)&UnrealCLRFramework::Actor::IsPendingKillPending;
 				Shared::ActorFunctions[head++] = (void*)&UnrealCLRFramework::Actor::IsRootComponentMovable;
 				Shared::ActorFunctions[head++] = (void*)&UnrealCLRFramework::Actor::IsOverlappingActor;
 				Shared::ActorFunctions[head++] = (void*)&UnrealCLRFramework::Actor::ForEachComponent;
@@ -1122,16 +1121,12 @@ void UnrealCLR::Module::StartupModule() {
 				Shared::Functions[position++] = Shared::MotionControllerComponentFunctions;
 
 				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::IsTracked;
-				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::GetDisplayDeviceModel;
 				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::GetDisableLowLatencyUpdate;
 				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::GetTrackingSource;
-				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::SetDisplayDeviceModel;
 				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::SetDisableLowLatencyUpdate;
 				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::SetTrackingSource;
 				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::SetTrackingMotionSource;
 				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::SetAssociatedPlayerIndex;
-				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::SetCustomDisplayMesh;
-				Shared::MotionControllerComponentFunctions[head++] = (void*)&UnrealCLRFramework::MotionControllerComponent::SetDisplayModelSource;
 
 				checksum += head;
 			}
@@ -1346,7 +1341,8 @@ void UnrealCLR::Module::StartupModule() {
 
 			if (reinterpret_cast<intptr_t>(UnrealCLR::ManagedCommand(UnrealCLR::Command(functions, checksum))) == 0xF) {
 				UE_LOG(LogUnrealCLR, Display, TEXT("%s: Host runtime assembly initialized successfuly!"), ANSI_TO_TCHAR(__FUNCTION__));
-			} else {
+			}
+			else {
 				UE_LOG(LogUnrealCLR, Error, TEXT("%s: Host runtime assembly initialization failed!"), ANSI_TO_TCHAR(__FUNCTION__));
 
 				return;
@@ -1355,12 +1351,14 @@ void UnrealCLR::Module::StartupModule() {
 			UnrealCLR::Status = UnrealCLR::StatusType::Idle;
 
 			UE_LOG(LogUnrealCLR, Display, TEXT("%s: Host loaded successfuly!"), ANSI_TO_TCHAR(__FUNCTION__));
-		} else {
+		}
+		else {
 			UE_LOG(LogUnrealCLR, Error, TEXT("%s: Host runtime assembly unable to load the initialization function!"), ANSI_TO_TCHAR(__FUNCTION__));
 
 			return;
 		}
-	} else {
+	}
+	else {
 		UE_LOG(LogUnrealCLR, Error, TEXT("%s: Host library loading failed!"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
@@ -1396,14 +1394,15 @@ void UnrealCLR::Module::OnWorldPostInitialization(UWorld* World, const UWorld::I
 
 					break;
 				}
-			} else {
-				#if WITH_EDITOR
-					FNotificationInfo notificationInfo(FText::FromString(TEXT("UnrealCLR host is not initialized! Please, check logs and try to restart the engine.")));
+			}
+			else {
+#if WITH_EDITOR
+				FNotificationInfo notificationInfo(FText::FromString(TEXT("UnrealCLR host is not initialized! Please, check logs and try to restart the engine.")));
 
-					notificationInfo.ExpireDuration = 5.0f;
+				notificationInfo.ExpireDuration = 5.0f;
 
-					FSlateNotificationManager::Get().AddNotification(notificationInfo);
-				#endif
+				FSlateNotificationManager::Get().AddNotification(notificationInfo);
+#endif
 			}
 		}
 	}
@@ -1464,21 +1463,24 @@ void UnrealCLR::Module::Exception(const char* Message) {
 }
 
 void UnrealCLR::Module::Log(UnrealCLR::LogLevel Level, const char* Message) {
-	#define UNREALCLR_LOG(Verbosity) UE_LOG(LogUnrealCLR, Verbosity, TEXT("%s: %s"), ANSI_TO_TCHAR(__FUNCTION__), *message);
+#define UNREALCLR_LOG(Verbosity) UE_LOG(LogUnrealCLR, Verbosity, TEXT("%s: %s"), ANSI_TO_TCHAR(__FUNCTION__), *message);
 
 	FString message(ANSI_TO_TCHAR(Message));
 
 	if (Level == UnrealCLR::LogLevel::Display) {
 		UNREALCLR_LOG(Display);
-	} else if (Level == UnrealCLR::LogLevel::Warning) {
+	}
+	else if (Level == UnrealCLR::LogLevel::Warning) {
 		UNREALCLR_LOG(Warning);
 
 		GEngine->AddOnScreenDebugMessage((uint64)-1, 60.0f, FColor::Yellow, *message);
-	} else if (Level == UnrealCLR::LogLevel::Error) {
+	}
+	else if (Level == UnrealCLR::LogLevel::Error) {
 		UNREALCLR_LOG(Error);
 
 		GEngine->AddOnScreenDebugMessage((uint64)-1, 60.0f, FColor::Red, *message);
-	} else if (Level == UnrealCLR::LogLevel::Fatal) {
+	}
+	else if (Level == UnrealCLR::LogLevel::Fatal) {
 		UNREALCLR_LOG(Error);
 
 		GEngine->AddOnScreenDebugMessage((uint64)-1, 60.0f, FColor::Red, *message);

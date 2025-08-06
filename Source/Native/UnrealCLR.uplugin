@@ -26,5 +26,11 @@
 				"Mac"
 			]
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "XRBase",
+			"Enabled": true
+		}
 	]
 }
