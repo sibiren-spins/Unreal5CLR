@@ -89,7 +89,7 @@ namespace UnrealEngine.Framework {
 				int head = 0;
 				IntPtr* objectFunctions = (IntPtr*)buffer[position++];
 
-				Object.isPendingKill = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)objectFunctions[head++];
+				Object.isValidLowLevel = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)objectFunctions[head++];
 				Object.isValid = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)objectFunctions[head++];
 				Object.load = (delegate* unmanaged[Cdecl]<ObjectType, byte[], IntPtr>)objectFunctions[head++];
 				Object.rename = (delegate* unmanaged[Cdecl]<IntPtr, byte[], void>)objectFunctions[head++];
@@ -185,10 +185,8 @@ namespace UnrealEngine.Framework {
 
 				HeadMountedDisplay.isConnected = (delegate* unmanaged[Cdecl]<Bool>)headMountedDisplayFunctions[head++];
 				HeadMountedDisplay.getEnabled = (delegate* unmanaged[Cdecl]<Bool>)headMountedDisplayFunctions[head++];
-				HeadMountedDisplay.getLowPersistenceMode = (delegate* unmanaged[Cdecl]<Bool>)headMountedDisplayFunctions[head++];
 				HeadMountedDisplay.getDeviceName = (delegate* unmanaged[Cdecl]<byte[], void>)headMountedDisplayFunctions[head++];
 				HeadMountedDisplay.setEnable = (delegate* unmanaged[Cdecl]<Bool, void>)headMountedDisplayFunctions[head++];
-				HeadMountedDisplay.setLowPersistenceMode = (delegate* unmanaged[Cdecl]<Bool, void>)headMountedDisplayFunctions[head++];
 			}
 
 			unchecked {
@@ -296,7 +294,7 @@ namespace UnrealEngine.Framework {
 				int head = 0;
 				IntPtr* actorFunctions = (IntPtr*)buffer[position++];
 
-				Actor.isPendingKill = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)actorFunctions[head++];
+				Actor.isPendingKillPending = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)actorFunctions[head++];
 				Actor.isRootComponentMovable = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)actorFunctions[head++];
 				Actor.isOverlappingActor = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, Bool>)actorFunctions[head++];
 				Actor.forEachComponent = (delegate* unmanaged[Cdecl]<IntPtr, ref ObjectReference*, ref int, void>)actorFunctions[head++];
@@ -923,16 +921,12 @@ namespace UnrealEngine.Framework {
 				IntPtr* motionControllerComponentFunctions = (IntPtr*)buffer[position++];
 
 				MotionControllerComponent.isTracked = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)motionControllerComponentFunctions[head++];
-				MotionControllerComponent.getDisplayDeviceModel = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)motionControllerComponentFunctions[head++];
 				MotionControllerComponent.getDisableLowLatencyUpdate = (delegate* unmanaged[Cdecl]<IntPtr, Bool>)motionControllerComponentFunctions[head++];
 				MotionControllerComponent.getTrackingSource = (delegate* unmanaged[Cdecl]<IntPtr, ControllerHand>)motionControllerComponentFunctions[head++];
-				MotionControllerComponent.setDisplayDeviceModel = (delegate* unmanaged[Cdecl]<IntPtr, Bool, void>)motionControllerComponentFunctions[head++];
 				MotionControllerComponent.setDisableLowLatencyUpdate = (delegate* unmanaged[Cdecl]<IntPtr, Bool, void>)motionControllerComponentFunctions[head++];
 				MotionControllerComponent.setTrackingSource = (delegate* unmanaged[Cdecl]<IntPtr, ControllerHand, void>)motionControllerComponentFunctions[head++];
 				MotionControllerComponent.setTrackingMotionSource = (delegate* unmanaged[Cdecl]<IntPtr, byte[], void>)motionControllerComponentFunctions[head++];
 				MotionControllerComponent.setAssociatedPlayerIndex = (delegate* unmanaged[Cdecl]<IntPtr, int, void>)motionControllerComponentFunctions[head++];
-				MotionControllerComponent.setCustomDisplayMesh = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void>)motionControllerComponentFunctions[head++];
-				MotionControllerComponent.setDisplayModelSource = (delegate* unmanaged[Cdecl]<IntPtr, byte[], void>)motionControllerComponentFunctions[head++];
 			}
 
 			unchecked {
@@ -1428,7 +1422,7 @@ namespace UnrealEngine.Framework {
 	}
 
 	internal static unsafe class Object {
-		internal static delegate* unmanaged[Cdecl]<IntPtr, Bool> isPendingKill;
+		internal static delegate* unmanaged[Cdecl]<IntPtr, Bool> isValidLowLevel;
 		internal static delegate* unmanaged[Cdecl]<IntPtr, Bool> isValid;
 		internal static delegate* unmanaged[Cdecl]<ObjectType, byte[], IntPtr> load;
 		internal static delegate* unmanaged[Cdecl]<IntPtr, byte[], void> rename;
@@ -1512,10 +1506,8 @@ namespace UnrealEngine.Framework {
 	static unsafe partial class HeadMountedDisplay {
 		internal static delegate* unmanaged[Cdecl]<Bool> isConnected;
 		internal static delegate* unmanaged[Cdecl]<Bool> getEnabled;
-		internal static delegate* unmanaged[Cdecl]<Bool> getLowPersistenceMode;
 		internal static delegate* unmanaged[Cdecl]<byte[], void> getDeviceName;
 		internal static delegate* unmanaged[Cdecl]<Bool, void> setEnable;
-		internal static delegate* unmanaged[Cdecl]<Bool, void> setLowPersistenceMode;
 	}
 
 	static unsafe partial class World {
@@ -1602,7 +1594,7 @@ namespace UnrealEngine.Framework {
 	}
 
 	unsafe partial class Actor {
-		internal static delegate* unmanaged[Cdecl]<IntPtr, Bool> isPendingKill;
+		internal static delegate* unmanaged[Cdecl]<IntPtr, Bool> isPendingKillPending;
 		internal static delegate* unmanaged[Cdecl]<IntPtr, Bool> isRootComponentMovable;
 		internal static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, Bool> isOverlappingActor;
 		internal static delegate* unmanaged[Cdecl]<IntPtr, ref ObjectReference*, ref int, void> forEachComponent;

@@ -43,15 +43,17 @@ public class UnrealCLR : ModuleRules {
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
-			"AIModule",
-			"AssetRegistry",
-			"CoreUObject",
-			"Engine",
-			"HeadMountedDisplay",
-			"InputCore",
-			"Slate",
-			"SlateCore"
-		});
+            "AIModule",
+            "AssetRegistry",
+            "CoreUObject",
+            "Engine",
+            "HeadMountedDisplay",
+            "InputCore",
+            "Slate",
+            "SlateCore",
+            "XRBase",
+            "HeadMountedDisplay"
+        });
 
 		DynamicallyLoadedModuleNames.AddRange(new string[] { });
 

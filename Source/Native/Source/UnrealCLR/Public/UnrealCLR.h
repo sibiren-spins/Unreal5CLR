@@ -1,5 +1,5 @@
 /*
- *  Unreal Engine .NET 6 integration 
+ *  Unreal Engine .NET 6 integration
  *  Copyright (c) 2021 Stanislav Denisov
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,14 +23,14 @@
 
 #pragma once
 
-// @third party code - BEGIN CoreCLR
+ // @third party code - BEGIN CoreCLR
 #include "../../Dependencies/CoreCLR/includes/coreclr_delegates.h"
 #include "../../Dependencies/CoreCLR/includes/hostfxr.h"
 // @third party code - END CoreCLR
 
 #include "AIController.h"
 #include "Animation/AnimInstance.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/AudioComponent.h"
@@ -70,7 +70,7 @@
 #include "GameFramework/RotatingMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
-#include "IAssetRegistry.h"
+#include "AssetRegistry/IAssetRegistry.h"
 #include "ImageUtils.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/DefaultValueHelper.h"
@@ -86,17 +86,17 @@
 #include "UnrealCLRManager.h"
 
 #if WITH_EDITOR
-	#include "Editor.h"
-	#include "Framework/Notifications/NotificationManager.h"
-	#include "Widgets/Notifications/SNotificationList.h"
+#include "Editor.h"
+#include "Framework/Notifications/NotificationManager.h"
+#include "Widgets/Notifications/SNotificationList.h"
 #endif
 
 #ifdef _WIN32
-	#define UNREALCLR_WINDOWS 1
+#define UNREALCLR_WINDOWS 1
 #elif defined(__unix__)
-	#define UNREALCLR_UNIX 2
+#define UNREALCLR_UNIX 2
 #elif defined(__APPLE__)
-	#define UNREALCLR_MAC 3
+#define UNREALCLR_MAC 3
 #endif
 
 #define UNREALCLR_NONE
@@ -296,12 +296,12 @@ namespace UnrealCLR {
 	};
 
 	class Module : public IModuleInterface {
-		protected:
+	protected:
 
 		virtual void StartupModule() override;
 		virtual void ShutdownModule() override;
 
-		private:
+	private:
 
 		void OnWorldPostInitialization(UWorld* World, const UWorld::InitializationValues InitializationValues);
 		void OnWorldCleanup(UWorld* World, bool SessionEnded, bool CleanupResources);

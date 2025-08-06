@@ -145,6 +145,15 @@ namespace UnrealCLRFramework {
 		}
 
 		FORCEINLINE operator FVector() const { return FVector(X, Y, Z); }
+
+		FORCEINLINE operator FIntVector() const
+		{
+			return FIntVector(
+				static_cast<int32>(X),
+				static_cast<int32>(Y),
+				static_cast<int32>(Z)
+			);
+		}
 	};
 
 	struct Quaternion {
@@ -171,7 +180,8 @@ namespace UnrealCLRFramework {
 		FORCEINLINE Transform(const FTransform& Value) :
 			Location(Value.GetTranslation()),
 			Rotation(Value.GetRotation()),
-			Scale(Value.GetScale3D()) { }
+			Scale(Value.GetScale3D()) {
+		}
 
 		FORCEINLINE operator FTransform() const { return FTransform(Rotation, Location, Scale); }
 	};
@@ -218,7 +228,8 @@ namespace UnrealCLRFramework {
 			Distance(Value.Distance),
 			PenetrationDepth(Value.PenetrationDepth),
 			BlockingHit(Value.bBlockingHit),
-			StartPenetrating(Value.bStartPenetrating) { }
+			StartPenetrating(Value.bStartPenetrating) {
+		}
 	};
 
 	typedef void (*InputDelegate)();
@@ -339,7 +350,7 @@ namespace UnrealCLRFramework {
 	}
 
 	namespace Object {
-		static bool IsPendingKill(UObject* Object);
+		static bool IsValidLowLevel(UObject* Object);
 		static bool IsValid(UObject* Object);
 		static UObject* Load(ObjectType Type, const char* Name);
 		static void Rename(UObject* Object, const char* Name);
@@ -423,10 +434,8 @@ namespace UnrealCLRFramework {
 	namespace HeadMountedDisplay {
 		static bool IsConnected();
 		static bool GetEnabled();
-		static bool GetLowPersistenceMode();
 		static void GetDeviceName(char* Name);
 		static void SetEnable(bool Value);
-		static void SetLowPersistenceMode(bool Value);
 	}
 
 	namespace World {
@@ -515,7 +524,7 @@ namespace UnrealCLRFramework {
 	}
 
 	namespace Actor {
-		static bool IsPendingKill(AActor* Actor);
+		static bool IsPendingKillPending(AActor* Actor);
 		static bool IsRootComponentMovable(AActor* Actor);
 		static bool IsOverlappingActor(AActor* Actor, AActor* Other);
 		static void ForEachComponent(AActor* Actor, UActorComponent** Array, int32* Elements);
@@ -557,13 +566,13 @@ namespace UnrealCLRFramework {
 		static void SwapPlayerControllers(AGameModeBase* GameModeBase, APlayerController* PlayerController, APlayerController* NewPlayerController);
 	}
 
-	namespace TriggerBase { }
+	namespace TriggerBase {}
 
-	namespace TriggerBox { }
+	namespace TriggerBox {}
 
-	namespace TriggerCapsule { }
+	namespace TriggerCapsule {}
 
-	namespace TriggerSphere { }
+	namespace TriggerSphere {}
 
 	namespace Pawn {
 		static bool IsControlled(APawn* Pawn);
@@ -658,7 +667,7 @@ namespace UnrealCLRFramework {
 		static bool EncompassesPoint(AVolume* Volume, const Vector3* Point, float SphereRadius, float* OutDistanceToPoint);
 	}
 
-	namespace TriggerVolume { }
+	namespace TriggerVolume {}
 
 	namespace PostProcessVolume {
 		static bool GetEnabled(APostProcessVolume* PostProcessVolume);
@@ -673,19 +682,19 @@ namespace UnrealCLRFramework {
 		static void SetPriority(APostProcessVolume* PostProcessVolume, float Priority);
 	}
 
-	namespace LevelScript { }
+	namespace LevelScript {}
 
-	namespace AmbientSound { }
+	namespace AmbientSound {}
 
-	namespace Light { }
+	namespace Light {}
 
-	namespace DirectionalLight { }
+	namespace DirectionalLight {}
 
-	namespace PointLight { }
+	namespace PointLight {}
 
-	namespace RectLight { }
+	namespace RectLight {}
 
-	namespace SpotLight { }
+	namespace SpotLight {}
 
 	namespace SoundBase {
 		static float GetDuration(USoundBase* SoundBase);
@@ -1101,16 +1110,12 @@ namespace UnrealCLRFramework {
 
 	namespace MotionControllerComponent {
 		static bool IsTracked(UMotionControllerComponent* MotionControllerComponent);
-		static bool GetDisplayDeviceModel(UMotionControllerComponent* MotionControllerComponent);
 		static bool GetDisableLowLatencyUpdate(UMotionControllerComponent* MotionControllerComponent);
 		static ControllerHand GetTrackingSource(UMotionControllerComponent* MotionControllerComponent);
-		static void SetDisplayDeviceModel(UMotionControllerComponent* MotionControllerComponent, bool Value);
 		static void SetDisableLowLatencyUpdate(UMotionControllerComponent* MotionControllerComponent, bool Value);
 		static void SetTrackingSource(UMotionControllerComponent* MotionControllerComponent, ControllerHand Value);
 		static void SetTrackingMotionSource(UMotionControllerComponent* MotionControllerComponent, const char* Source);
 		static void SetAssociatedPlayerIndex(UMotionControllerComponent* MotionControllerComponent, int32 PlayerIndex);
-		static void SetCustomDisplayMesh(UMotionControllerComponent* MotionControllerComponent, UStaticMesh* StaticMesh);
-		static void SetDisplayModelSource(UMotionControllerComponent* MotionControllerComponent, const char* Source);
 	}
 
 	namespace StaticMeshComponent {
